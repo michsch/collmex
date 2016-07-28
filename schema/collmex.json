@@ -1,0 +1,63 @@
+{
+  "LOGIN": {
+    "type": "object",
+    "properties": {
+      "user": {
+        "type": "string"
+      },
+      "password": {
+        "type": "string"
+      }
+    },
+    "required": ["user", "password"],
+    "description": "http://www.collmex.de/cgi-bin/cgi.exe?1005,1,help,api_Authentifizierung"
+  },
+  "CMXACT": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "number"
+        },
+        "employeeId": {
+          "type": "number"
+        },
+        "companyId": {
+          "type": "number"
+        },
+        "rateId": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "fromTime": {
+          "type": "string"
+        },
+        "toTime": {
+          "type": "string"
+        },
+        "breakTime": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "employeeId",
+        "companyId",
+        "rateId",
+        "description",
+        "employeeId",
+        "date",
+        "fromTime",
+        "toTime",
+        "breakTime"
+      ]
+    },
+    "description": "http://www.collmex.de/cgi-bin/cgi.exe?1005,1,help,daten_importieren_taetigkeiten"
+  }
+}
