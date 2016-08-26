@@ -53,7 +53,7 @@ class TymeToCollmex {
       startingTime = this.createCollmexTime(startingDate);
       endingTime = this.createCollmexTime(endingDate);
       collmexDate += startingDate.getFullYear() +
-        this.atLeastTwoDigits(startingDate.getMonth()) +
+        this.atLeastTwoDigits(startingDate.getMonth() + 1) +
         this.atLeastTwoDigits(startingDate.getDate());
 
       let record = {
