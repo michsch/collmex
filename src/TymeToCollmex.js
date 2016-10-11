@@ -43,33 +43,84 @@ class TymeToCollmex {
     this.sourceJson.timed.forEach( (entry) => {
       let startingDate,
           endingDate,
-          startingTime,
-          endingTime,
-          collmexDate = '';
+          collmexTimeEntriesForSingleTymeEntry;
 
       startingDate = new Date(entry.timeStart);
       endingDate = new Date(entry.timeEnd);
 
-      startingTime = this.createCollmexTime(startingDate);
-      endingTime = this.createCollmexTime(endingDate);
-      collmexDate += startingDate.getFullYear() +
-        this.atLeastTwoDigits(startingDate.getMonth() + 1) +
-        this.atLeastTwoDigits(startingDate.getDate());
+      collmexTimeEntriesForSingleTymeEntry = this.createRecordsForSingleTymeEntry(
+        startingDate,
+        endingDate,
+        {
+          projectId: this.getCollmexIdInMarker(entry.project, entry),
+          rateId: this.getCollmexIdInMarker(entry.task, entry),
+          notes: entry.notes
+        }
+      );
 
-      let record = {
-        projectId   : this.getCollmexIdInMarker(entry.project, entry),
-        employeeId  : config.EMPLOYEEID,
-        companyId   : config.COMPANYID,
-        rateId      : this.getCollmexIdInMarker(entry.task, entry),
-        description : entry.notes,
-        date        : collmexDate,
-        fromTime    : startingTime,
-        toTime      : endingTime,
-        breakTime   : '00:00'
-      };
-
-      collmexTimeEntries.push(record);
+      collmexTimeEntries = collmexTimeEntries.concat(
+        collmexTimeEntriesForSingleTymeEntry
+      );
     });
+
+    return collmexTimeEntries;
+  }
+
+  /**
+   * Create records (collmex time entries) for a single Tyme entry.
+   *
+   * @method createRecordsForSingleTymeEntry
+   * @param {Date} startingDate
+   * @param {Date} endingDate
+   * @param {Object} staticRecord Object containing projectId, rateId and notes
+   * @return {Array} collmexTimeEntries
+   */
+  createRecordsForSingleTymeEntry (startingDate, endingDate, staticRecord) {
+    let startingTime,
+        endingTime,
+        collmexDate,
+        record,
+        newStartingDate,
+        collmexTimeEntries;
+
+    collmexTimeEntries = [];
+
+    startingTime = this.createCollmexTime(startingDate);
+    endingTime = this.createCollmexTime(endingDate);
+    collmexDate = this.createCollmexDate(startingDate);
+
+    record = {
+      projectId   : staticRecord.projectId,
+      employeeId  : config.EMPLOYEEID,
+      companyId   : config.COMPANYID,
+      rateId      : staticRecord.rateId,
+      description : staticRecord.notes,
+      date        : collmexDate,
+      fromTime    : startingTime,
+      toTime      : endingTime,
+      breakTime   : '00:00'
+    };
+
+    // Entry is on more than one day.
+    if (endingDate > startingDate && endingDate.getDate() !== startingDate.getDate()) {
+      newStartingDate = new Date(startingDate.getTime());
+      newStartingDate.setDate(newStartingDate.getDate() + 1);
+
+      // Set new starting time to 00:00:00
+      newStartingDate.setHours(0);
+      newStartingDate.setMinutes(0);
+      newStartingDate.setSeconds(0);
+
+      record.toTime = '23:59';
+      collmexTimeEntries.push(record);
+
+      // Go to the next day and concat all the records.
+      collmexTimeEntries = collmexTimeEntries.concat(
+        this.createRecordsForSingleTymeEntry(newStartingDate, endingDate, staticRecord)
+      );
+    } else {
+      collmexTimeEntries.push(record);
+    }
 
     return collmexTimeEntries;
   }
@@ -78,15 +129,30 @@ class TymeToCollmex {
    * Creates a collmex time with a given date object.
    *
    * @method createCollmexTime
+   * @param {Object} date
    * @return {String} Time as string like "09:08"
    */
   createCollmexTime (date) {
-    let hours, minutes;
+    const hours = this.atLeastTwoDigits(date.getHours());
+    const minutes = this.atLeastTwoDigits(date.getMinutes());
+    const collmexTime = hours + ':' + minutes;
 
-    hours = this.atLeastTwoDigits(date.getHours());
-    minutes = this.atLeastTwoDigits(date.getMinutes());
+    return collmexTime;
+  }
 
-    return hours + ':' + minutes;
+  /**
+   * Creates a collmex date with a given date object.
+   *
+   * @method createCollmexDate
+   * @param {Object} date
+   * @return {String} Date as string like "20161011".
+   */
+  createCollmexDate (date) {
+    const collmexDate = date.getFullYear() +
+      this.atLeastTwoDigits(date.getMonth()) +
+      this.atLeastTwoDigits(date.getDate());
+
+    return collmexDate;
   }
 
   /**
