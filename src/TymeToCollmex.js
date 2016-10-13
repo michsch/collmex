@@ -149,7 +149,7 @@ class TymeToCollmex {
    */
   createCollmexDate (date) {
     const collmexDate = date.getFullYear() +
-      this.atLeastTwoDigits(date.getMonth()) +
+      this.atLeastTwoDigits(date.getMonth() + 1) +
       this.atLeastTwoDigits(date.getDate());
 
     return collmexDate;
