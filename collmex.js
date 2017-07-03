@@ -13,6 +13,7 @@ var fs = require('fs');
 var tv4 = require('tv4');
 var csvSchema = require('./schema/collmex.json');
 var config = require('./config/local-env');
+var iconv = require('iconv-lite');
 
 const COLLMEXHOST = 'www.collmex.de';
 const COLLMEXPATH = '/cgi-bin/cgi.exe?' + config.CLIENTID + ',0,data_exchange';
@@ -237,7 +238,11 @@ class Collmex {
     fileNameArr.pop();
     fileName = fileNameArr.join('.') + '.csv';
 
-    fs.writeFile(fileName, this.csv, function(err) {
+    //const csv = this.csv
+
+    const csv = iconv.encode(this.csv, 'iso-8859-1')
+
+    fs.writeFile(fileName, csv, function(err) {
       if(err) {
           return console.log(err);
       }
