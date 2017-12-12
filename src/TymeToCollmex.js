@@ -47,6 +47,7 @@ class TymeToCollmex {
 
       startingDate = new Date(entry.timeStart);
       endingDate = new Date(entry.timeEnd);
+      const notes = entry.notes.replace(/\n/ig, ' ');
 
       collmexTimeEntriesForSingleTymeEntry = this.createRecordsForSingleTymeEntry(
         startingDate,
@@ -54,7 +55,7 @@ class TymeToCollmex {
         {
           projectId: this.getCollmexIdInMarker(entry.project, entry),
           rateId: this.getCollmexIdInMarker(entry.task, entry),
-          notes: entry.notes
+          notes: notes
         }
       );
 
