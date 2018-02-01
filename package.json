@@ -8,7 +8,8 @@
     "email": "ms@michsch.de"
   },
   "scripts": {
-    "test": "grunt qunit --verbose"
+    "test": "grunt qunit --verbose",
+    "tyme": "node collmex.js tyme"
   },
   "main": "collmex.js",
   "dependencies": {
