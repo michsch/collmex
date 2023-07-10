@@ -16,7 +16,9 @@
     "iconv-lite": "^0.4.18",
     "tv4": "^1.2.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "dayjs": "^1.11.8"
+  },
   "keywords": [
     "collmex"
   ],
