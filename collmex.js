@@ -14,6 +14,7 @@ var tv4 = require('tv4');
 var csvSchema = require('./schema/collmex.json');
 var config = require('./config/local-env');
 var iconv = require('iconv-lite');
+const TymeToCollmex = require('./src/TymeToCollmex');
 
 const COLLMEXHOST = 'www.collmex.de';
 const COLLMEXPATH = '/cgi-bin/cgi.exe?' + config.CLIENTID + ',0,data_exchange';
@@ -78,11 +79,18 @@ class Collmex {
    * @return {void}
    */
   chooseAction () {
+    let tymeJson, timeEntries
+
     switch (this.action) {
-      case 'tyme':
-        let TymeToCollmex = require('./src/TymeToCollmex');
-        let tymeJson = require(this.getPathToSourceJson(this.sourceFileName));
-        let timeEntries = new TymeToCollmex(tymeJson, csvSchema.CMXACT);
+      case 'tyme2':
+        tymeJson = require(this.getPathToSourceJson(this.sourceFileName));
+        timeEntries = new TymeToCollmex(tymeJson, csvSchema.CMXACT, 2);
+
+        this.addDataSet(timeEntries);
+        break;
+      case 'tyme3':
+        tymeJson = require(this.getPathToSourceJson(this.sourceFileName));
+        timeEntries = new TymeToCollmex(tymeJson, csvSchema.CMXACT, 3);
 
         this.addDataSet(timeEntries);
         break;

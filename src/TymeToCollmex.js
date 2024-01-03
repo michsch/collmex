@@ -19,16 +19,30 @@ const config = require('../config/local-env')
  * @class TymeToCollmex
  */
 class TymeToCollmex {
+  #schema = null
+  #tymeVersion = null
+  #sourceJson = null
+  #sourceEntries = null
+
   /**
    * @constructor
    * @param {Object} sourceJson
+   * @param {Object} schema
+   * @param {Number} [tymeVersion=3]
    */
-  constructor (sourceJson) {
-    if (this.isValidSourceJson(sourceJson)) {
-      this.sourceJson = sourceJson
-      this.set = 'CMXACT'
-      this.records = this.createCollmexTimeEntriesObject()
+  constructor (sourceJson, schema, tymeVersion = 3) {
+    this.#schema = schema
+    this.#tymeVersion = tymeVersion
+
+    if (!this.isValidSourceJson(sourceJson)) {
+      return
     }
+
+    this.#sourceJson = sourceJson
+    this.#sourceEntries = sourceJson.data || sourceJson.timed
+
+    this.set = 'CMXACT'
+    this.records = this.createCollmexTimeEntriesObject()
   }
 
   /**
@@ -40,10 +54,13 @@ class TymeToCollmex {
   createCollmexTimeEntriesObject () {
     let collmexTimeEntries = []
 
-    this.sourceJson.timed.forEach((entry) => {
-      const startingDate = new Date(entry.timeStart)
-      const endingDate = new Date(entry.timeEnd)
-      const notes = entry.notes.replace(/\n/ig, ' ')
+    this.#sourceEntries.forEach((entry) => {
+      const start = entry.start || entry.timeStart
+      const end = entry.end || entry.timeEnd
+      const startingDate = new Date(start)
+      const endingDate = new Date(end)
+      const note = entry.note || entry.notes || ''
+      const description = note.replace(/\n/ig, ' ')
 
       const collmexTimeEntriesForSingleTymeEntry = this.createRecordsForSingleTymeEntry(
         startingDate,
@@ -51,7 +68,7 @@ class TymeToCollmex {
         {
           projectId: this.getCollmexIdInMarker(entry.project, entry),
           rateId: this.getCollmexIdInMarker(entry.task, entry),
-          notes,
+          description,
         },
       )
 
@@ -82,11 +99,9 @@ class TymeToCollmex {
     const collmexDate = this.createCollmexDate(startingDate)
 
     const record = {
-      projectId: staticRecord.projectId,
+      ...staticRecord,
       employeeId: config.EMPLOYEEID,
       companyId: config.COMPANYID,
-      rateId: staticRecord.rateId,
-      description: staticRecord.notes,
       date: collmexDate,
       fromTime: startingTime,
       toTime: endingTime,
@@ -167,8 +182,8 @@ class TymeToCollmex {
    * @return {Number} id
    */
   getCollmexIdInMarker (text, entry) {
-    const regEx = new RegExp('\\' + config.IDMARKER.substring(0, 1) +
-      '.*\\' + config.IDMARKER.substring(1), 'g')
+    const regEx = new RegExp('\\' + config.IDMARKER_START +
+      '.*\\' + config.IDMARKER_END, 'g')
     const matches = text.match(regEx)
 
     if (!matches || matches.length === 0) {
@@ -190,11 +205,18 @@ class TymeToCollmex {
    * @return {Boolean} true if is valid, false if not
    */
   isValidSourceJson (sourceJson) {
-    return (typeof sourceJson === 'object' &&
-            Array.isArray(sourceJson.timed) &&
-            sourceJson.timed.length > 0 &&
-            (sourceJson.timed[0].project && sourceJson.timed[0].project.length) &&
-            (sourceJson.timed[0].task && sourceJson.timed[0].task.length) > 0)
+    const hasData = sourceJson.data != null &&
+      Array.isArray(sourceJson.data) &&
+      sourceJson.data.length > 0 &&
+      (sourceJson.data[0].project && sourceJson.data[0].project.length) &&
+      (sourceJson.data[0].task && sourceJson.data[0].task.length > 0)
+    const hasTimed = sourceJson.timed != null &&
+      Array.isArray(sourceJson.timed) &&
+      sourceJson.timed.length > 0 &&
+      (sourceJson.timed[0].project && sourceJson.timed[0].project.length) &&
+      (sourceJson.timed[0].task && sourceJson.timed[0].task.length > 0)
+
+    return hasData || hasTimed
   }
 }
 

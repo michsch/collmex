@@ -1,15 +1,15 @@
 const dayjs = require('dayjs')
 const fs = require('fs')
 
-const month = 7
+const month = 8
 
 const config = {
   date: dayjs(new Date(2023, month, 1)),
   month,
   fields: {
     roundingMethod: 'NEAREST',
-    category: 'powwow',
-    project: 'powwow Performance [33]',
+    category: 'mobilezone',
+    project: 'mobilezone Performance [33]',
     rate: 82.5,
     roundingMinutes: 1,
     task: 'Software-Entwicklung [28]',

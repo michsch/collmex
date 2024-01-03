@@ -8,7 +8,8 @@
     "email": "ms@michsch.de"
   },
   "scripts": {
-    "tyme": "node collmex.js tyme",
+    "tyme": "node collmex.js tyme3",
+    "tyme2": "node collmex.js tyme2",
     "test": "npx eslint ./src/**.js"
   },
   "main": "collmex.js",
