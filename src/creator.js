@@ -5,15 +5,15 @@ const month = 7
 
 const config = {
   date: dayjs(new Date(2023, month, 1)),
-  month: month,
+  month,
   fields: {
-    roundingMethod: "NEAREST",
-    category: "powwow",
-    project: "powwow Performance [33]",
+    roundingMethod: 'NEAREST',
+    category: 'powwow',
+    project: 'powwow Performance [33]',
     rate: 82.5,
     roundingMinutes: 1,
-    task: "Software-Entwicklung [28]",
-    subtask: "",
+    task: 'Software-Entwicklung [28]',
+    subtask: '',
   },
   tasks: [
     {
@@ -92,18 +92,19 @@ const config = {
     earliestStartHour: 8,
     earliestStartMinute: 23,
     latestStartHour: 9,
-    latestStartMinute: 34
-  }
+    latestStartMinute: 34,
+  },
 }
 
 class Creator {
-  constructor() {
+  constructor () {
     this._id = 0
 
     const days = this.getEveryDayForGivenMonth(config.month).filter(entry => config.weekdays.includes(entry.weekday))
     const tasks = this.createTasksEntriesForEveryDay(days)
-    //console.log(days)
+    // console.log(days)
 
+    /* eslint-disable no-unused-vars */
     const tasksByDays = tasks.reduce((accumulator, task) => {
       const day = task.startTime.date()
 
@@ -117,12 +118,13 @@ class Creator {
           day,
           date: task.startTime.format('YYYY-MM-DD'),
           tasks: [task],
-          duration: this.round(task.duration / 3600)
+          duration: this.round(task.duration / 3600),
         })
       }
 
       return accumulator
     }, [])
+    /* eslint-enable no-unused-vars */
 
     const jsonForFile = tasks.map(task => {
       return {
@@ -141,49 +143,49 @@ class Creator {
     this.createCsvFile(jsonForFile)
   }
 
-  writeToFile(jsonForFile) {
+  writeToFile (jsonForFile) {
     fs.writeFile('output.json', JSON.stringify(jsonForFile), 'utf8', () => {})
   }
 
-  createCsvFile(jsArray) {
+  createCsvFile (jsArray) {
     const header = Object.keys(jsArray[0]).join(';') + '\n'
     const csv = header + jsArray.map(row => Object.values(row).join(';')).join('\n')
     fs.writeFile('output.csv', csv, 'utf8', () => {})
   }
 
-  createId() {
+  createId () {
     return this._id++
   }
 
-  getEveryDayForGivenMonth(month) {
-    let days = []
+  getEveryDayForGivenMonth (month) {
+    const days = []
     let date = config.date.clone()
     while (date.month() === month) {
       days.push({
         date: date.clone(),
         dateFormat: date.format(),
         weekday: this.getWeekDay(date),
-      });
+      })
       date = date.add(1, 'day')
     }
     return days
   }
 
-  getWeekDay(date) {
-    let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  getWeekDay (date) {
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     return weekdays[date.day()]
   }
 
-  createTasksEntriesForEveryDay(days) {
-    let entries = [];
+  createTasksEntriesForEveryDay (days) {
+    let entries = []
     days.forEach(day => {
-      entries = entries.concat(this.createTaskEntriesForDay(day));
-    });
-    return entries;
+      entries = entries.concat(this.createTaskEntriesForDay(day))
+    })
+    return entries
   }
 
-  createTaskEntriesForDay(day) {
-    let tasks = [this.createFirstEntryForDay(day)]
+  createTaskEntriesForDay (day) {
+    const tasks = [this.createFirstEntryForDay(day)]
     let durationTotal = tasks[0].duration
     let pause = false
 
@@ -202,7 +204,7 @@ class Creator {
     return tasks
   }
 
-  createFirstEntryForDay(day) {
+  createFirstEntryForDay (day) {
     const earliestStartDate = day.date.hour(config.firstTasks.earliestStartHour).minute(config.firstTasks.earliestStartMinute)
     const latestStartDate = day.date.hour(config.firstTasks.latestStartHour).minute(config.firstTasks.latestStartMinute)
     const minutes = latestStartDate.diff(earliestStartDate, 'minute')
@@ -216,17 +218,17 @@ class Creator {
     return {
       ...config.fields,
       id: this.createId(),
-      startTime: startTime,
-      endTime: endTime,
+      startTime,
+      endTime,
       startTimeFormat: startTime.format(),
       endTimeFormat: endTime.format(),
       duration: this.round(randomDuration * 60),
       sum: this.round(config.fields.rate * randomDuration / 60),
-      notes: notes,
+      notes,
     }
   }
 
-  createTask(day, tasks, setPause = false) {
+  createTask (day, tasks, setPause = false) {
     const minuteGap = setPause ? this.randomNum(34, 52) : this.randomNum(1, 8)
 
     const startTime = tasks[tasks.length - 1].endTime.add(minuteGap, 'minute')
@@ -237,8 +239,8 @@ class Creator {
     return {
       ...config.fields,
       id: this.createId(),
-      startTime: startTime,
-      endTime: endTime,
+      startTime,
+      endTime,
       startTimeFormat: startTime.format(),
       endTimeFormat: endTime.format(),
       duration: this.round(duration * 60),
@@ -247,19 +249,15 @@ class Creator {
     }
   }
 
-  randomNum(min, max) {
+  randomNum (min, max) {
     return Math.round(Math.random() * (max - min) + min)
   }
 
-  round(num) {
+  round (num) {
     return Math.round(num * 100) / 100
-  }
-
-  createStartTime() {
-
   }
 }
 
-new Creator().getEveryDayForGivenMonth(1);
+new Creator().getEveryDayForGivenMonth(1)
 
-module.exports = Creator;
+module.exports = Creator

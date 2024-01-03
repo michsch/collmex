@@ -6,10 +6,12 @@
  * @license MIT, Copyright 2016 Michael Schulze
  */
 
-'use strict';
+'use strict'
 
-var RuntimeException = require('./RuntimeException');
-var config = require('../config/local-env');
+/* eslint-disable no-unused-vars */
+const RuntimeException = require('./RuntimeException')
+/* eslint-enable no-unused-vars */
+const config = require('../config/local-env')
 
 /**
  * Use Tyme JSON and convert it to a collmex object.
@@ -23,9 +25,9 @@ class TymeToCollmex {
    */
   constructor (sourceJson) {
     if (this.isValidSourceJson(sourceJson)) {
-      this.sourceJson = sourceJson;
-      this.set = 'CMXACT';
-      this.records = this.createCollmexTimeEntriesObject();
+      this.sourceJson = sourceJson
+      this.set = 'CMXACT'
+      this.records = this.createCollmexTimeEntriesObject()
     }
   }
 
@@ -36,35 +38,29 @@ class TymeToCollmex {
    * @return {Object} collmexTimeEntries
    */
   createCollmexTimeEntriesObject () {
-    let collmexTimeEntries;
+    let collmexTimeEntries = []
 
-    collmexTimeEntries = [];
+    this.sourceJson.timed.forEach((entry) => {
+      const startingDate = new Date(entry.timeStart)
+      const endingDate = new Date(entry.timeEnd)
+      const notes = entry.notes.replace(/\n/ig, ' ')
 
-    this.sourceJson.timed.forEach( (entry) => {
-      let startingDate,
-          endingDate,
-          collmexTimeEntriesForSingleTymeEntry;
-
-      startingDate = new Date(entry.timeStart);
-      endingDate = new Date(entry.timeEnd);
-      const notes = entry.notes.replace(/\n/ig, ' ');
-
-      collmexTimeEntriesForSingleTymeEntry = this.createRecordsForSingleTymeEntry(
+      const collmexTimeEntriesForSingleTymeEntry = this.createRecordsForSingleTymeEntry(
         startingDate,
         endingDate,
         {
           projectId: this.getCollmexIdInMarker(entry.project, entry),
           rateId: this.getCollmexIdInMarker(entry.task, entry),
-          notes: notes
-        }
-      );
+          notes,
+        },
+      )
 
       collmexTimeEntries = collmexTimeEntries.concat(
         collmexTimeEntriesForSingleTymeEntry
-      );
-    });
+      )
+    })
 
-    return collmexTimeEntries;
+    return collmexTimeEntries
   }
 
   /**
@@ -77,53 +73,48 @@ class TymeToCollmex {
    * @return {Array} collmexTimeEntries
    */
   createRecordsForSingleTymeEntry (startingDate, endingDate, staticRecord) {
-    let startingTime,
-        endingTime,
-        collmexDate,
-        record,
-        newStartingDate,
-        collmexTimeEntries;
+    let newStartingDate, collmexTimeEntries
 
-    collmexTimeEntries = [];
+    collmexTimeEntries = []
 
-    startingTime = this.createCollmexTime(startingDate);
-    endingTime = this.createCollmexTime(endingDate);
-    collmexDate = this.createCollmexDate(startingDate);
+    const startingTime = this.createCollmexTime(startingDate)
+    const endingTime = this.createCollmexTime(endingDate)
+    const collmexDate = this.createCollmexDate(startingDate)
 
-    record = {
-      projectId   : staticRecord.projectId,
-      employeeId  : config.EMPLOYEEID,
-      companyId   : config.COMPANYID,
-      rateId      : staticRecord.rateId,
-      description : staticRecord.notes,
-      date        : collmexDate,
-      fromTime    : startingTime,
-      toTime      : endingTime,
-      breakTime   : '00:00'
-    };
+    const record = {
+      projectId: staticRecord.projectId,
+      employeeId: config.EMPLOYEEID,
+      companyId: config.COMPANYID,
+      rateId: staticRecord.rateId,
+      description: staticRecord.notes,
+      date: collmexDate,
+      fromTime: startingTime,
+      toTime: endingTime,
+      breakTime: '00:00',
+    }
 
     // Entry is on more than one day.
     if (endingDate > startingDate && endingDate.getDate() !== startingDate.getDate()) {
-      newStartingDate = new Date(startingDate.getTime());
-      newStartingDate.setDate(newStartingDate.getDate() + 1);
+      newStartingDate = new Date(startingDate.getTime())
+      newStartingDate.setDate(newStartingDate.getDate() + 1)
 
       // Set new starting time to 00:00:00
-      newStartingDate.setHours(0);
-      newStartingDate.setMinutes(0);
-      newStartingDate.setSeconds(0);
+      newStartingDate.setHours(0)
+      newStartingDate.setMinutes(0)
+      newStartingDate.setSeconds(0)
 
-      record.toTime = '23:59';
-      collmexTimeEntries.push(record);
+      record.toTime = '23:59'
+      collmexTimeEntries.push(record)
 
       // Go to the next day and concat all the records.
       collmexTimeEntries = collmexTimeEntries.concat(
         this.createRecordsForSingleTymeEntry(newStartingDate, endingDate, staticRecord)
-      );
+      )
     } else {
-      collmexTimeEntries.push(record);
+      collmexTimeEntries.push(record)
     }
 
-    return collmexTimeEntries;
+    return collmexTimeEntries
   }
 
   /**
@@ -134,11 +125,11 @@ class TymeToCollmex {
    * @return {String} Time as string like "09:08"
    */
   createCollmexTime (date) {
-    const hours = this.atLeastTwoDigits(date.getHours());
-    const minutes = this.atLeastTwoDigits(date.getMinutes());
-    const collmexTime = hours + ':' + minutes;
+    const hours = this.atLeastTwoDigits(date.getHours())
+    const minutes = this.atLeastTwoDigits(date.getMinutes())
+    const collmexTime = hours + ':' + minutes
 
-    return collmexTime;
+    return collmexTime
   }
 
   /**
@@ -151,9 +142,9 @@ class TymeToCollmex {
   createCollmexDate (date) {
     const collmexDate = date.getFullYear() +
       this.atLeastTwoDigits(date.getMonth() + 1) +
-      this.atLeastTwoDigits(date.getDate());
+      this.atLeastTwoDigits(date.getDate())
 
-    return collmexDate;
+    return collmexDate
   }
 
   /**
@@ -164,7 +155,7 @@ class TymeToCollmex {
    * @return {String} number as string with at least two digits
    */
   atLeastTwoDigits (num) {
-    return parseInt(num, 10) < 10 ? '0' + num : num.toString();
+    return parseInt(num, 10) < 10 ? '0' + num : num.toString()
   }
 
   /**
@@ -176,21 +167,19 @@ class TymeToCollmex {
    * @return {Number} id
    */
   getCollmexIdInMarker (text, entry) {
-    let regEx, matches;
-
-    regEx = new RegExp('\\' + config.IDMARKER.substring(0, 1) +
-      '.*\\' + config.IDMARKER.substring(1), 'g');
-    matches = text.match(regEx);
+    const regEx = new RegExp('\\' + config.IDMARKER.substring(0, 1) +
+      '.*\\' + config.IDMARKER.substring(1), 'g')
+    const matches = text.match(regEx)
 
     if (!matches || matches.length === 0) {
       if (entry == null) {
-        return;
+        return
       }
 
-      throw new Error('No ID found for entry', entry);
+      throw new Error('No ID found for entry', entry)
     }
 
-    return parseInt(matches.pop().slice(1, -1), 10);
+    return parseInt(matches.pop().slice(1, -1), 10)
   }
 
   /**
@@ -205,8 +194,8 @@ class TymeToCollmex {
             Array.isArray(sourceJson.timed) &&
             sourceJson.timed.length > 0 &&
             (sourceJson.timed[0].project && sourceJson.timed[0].project.length) &&
-            (sourceJson.timed[0].task && sourceJson.timed[0].task.length) > 0);
+            (sourceJson.timed[0].task && sourceJson.timed[0].task.length) > 0)
   }
 }
 
-module.exports = TymeToCollmex;
+module.exports = TymeToCollmex
