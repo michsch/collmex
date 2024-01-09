@@ -1,10 +1,14 @@
 const dayjs = require('dayjs')
 const fs = require('fs')
+const localEnv = require('../config/local-env.js')
 
+const year = 2023
 const month = 8
+const day = 1
+const date = new Date(year, month, day)
 
 const config = {
-  date: dayjs(new Date(2023, month, 1)),
+  date: dayjs(date),
   month,
   fields: {
     roundingMethod: 'NEAREST',
@@ -97,6 +101,13 @@ const config = {
 }
 
 class Creator {
+  #firstDate = null
+  #lastDate = null
+  #destDir = ''
+  #destFileName = ''
+  #destFileNamePrefix = ''
+  #destFilePath = ''
+
   constructor () {
     this._id = 0
 
@@ -104,10 +115,22 @@ class Creator {
     const tasks = this.createTasksEntriesForEveryDay(days)
     // console.log(days)
 
+    this.#firstDate = days[0]?.date || null
+    this.#lastDate = days.reverse()[0]?.date || null
+
+    if (this.#firstDate == null || this.#lastDate == null) {
+      console.log(`First or last date not set.`)
+      return
+    }
+
+    this.#destDir = localEnv.DEST_DIR
+    this.#destFileNamePrefix = localEnv.CREATOR_DEST_FILE_NAME_PREFIX
+    this.#destFileName = `${localEnv.CREATOR_DEST_FILE_NAME_PREFIX}${this.#firstDate.format('YYYYMMDD')}-${this.#lastDate.format('YYYYMMDD')}.json`
+    this.#destFilePath = `${localEnv.DEST_DIR}/${this.#destFileName}`
+
     /* eslint-disable no-unused-vars */
     const tasksByDays = tasks.reduce((accumulator, task) => {
       const day = task.startTime.date()
-
       const dayObj = accumulator.find(dayObj => dayObj.day === day)
 
       if (dayObj) {
@@ -139,15 +162,22 @@ class Creator {
       }
     })
 
-    this.writeToFile(jsonForFile)
-    this.createCsvFile(jsonForFile)
+    this.#prepare()
+    this.#writeToFile(jsonForFile)
+    this.#createCsvFile(jsonForFile)
   }
 
-  writeToFile (jsonForFile) {
-    fs.writeFile('output.json', JSON.stringify(jsonForFile), 'utf8', () => {})
+  #prepare () {
+    if (!fs.existsSync(this.#destDir)){
+      fs.mkdirSync(this.#destDir, { recursive: true })
+    }
   }
 
-  createCsvFile (jsArray) {
+  #writeToFile (jsonForFile) {
+    fs.writeFile(this.#destFilePath, JSON.stringify(jsonForFile), 'utf8', () => {})
+  }
+
+  #createCsvFile (jsArray) {
     const header = Object.keys(jsArray[0]).join(';') + '\n'
     const csv = header + jsArray.map(row => Object.values(row).join(';')).join('\n')
     fs.writeFile('output.csv', csv, 'utf8', () => {})

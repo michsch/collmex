@@ -10,5 +10,6 @@
 *.sass-cache
 
 .idea/*
+dest/
 
 config/local-env.js
