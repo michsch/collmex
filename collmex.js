@@ -17,7 +17,7 @@ var iconv = require('iconv-lite');
 const TymeToCollmex = require('./src/TymeToCollmex');
 
 const COLLMEXHOST = 'www.collmex.de';
-const COLLMEXPATH = '/cgi-bin/cgi.exe?' + config.CLIENTID + ',0,data_exchange';
+const COLLMEXPATH = '/cgi-bin/cgi.exe?' + config.CLIENT_ID + ',0,data_exchange';
 
 Object.size = function(obj) {
     let size = 0,
@@ -99,7 +99,7 @@ class Collmex {
     this.csv = this.createCsvExport();
     this.writeCsvFile();
 
-    if (config.USEAPI) {
+    if (config.USE_API) {
       this.sendDataToCollmex();
     }
   }
@@ -185,7 +185,7 @@ class Collmex {
     if (Array.isArray(set)) {
       set.forEach( (record) => {
         if (!tv4.validate(record, csvSchema[setName].items)) {
-          console.log(tv4.validateResult(record, csvSchema[setName].items));
+          console.log(record, tv4.validateResult(record, csvSchema[setName].items));
           return;
         }
 
@@ -221,11 +221,10 @@ class Collmex {
     divider = ';';
     csv = setName;
 
-    for (let fieldName in record) {
-      csv += divider + record[fieldName];
-    }
+    config.COLLMEX_CMXACT_FIELDS_SORT.forEach((fieldName) => {
+      csv += divider + (record[fieldName] || '');
+    })
 
-    //console.log(this.columns);
     if (Object.size(record) < this.columns) {
       csv += divider.repeat(this.columns - Object.size(record));
     }

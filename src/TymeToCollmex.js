@@ -100,8 +100,8 @@ class TymeToCollmex {
 
     const record = {
       ...staticRecord,
-      employeeId: config.EMPLOYEEID,
-      companyId: config.COMPANYID,
+      employeeId: config.EMPLOYEE_ID,
+      companyId: config.COMPANY_ID,
       date: collmexDate,
       fromTime: startingTime,
       toTime: endingTime,
