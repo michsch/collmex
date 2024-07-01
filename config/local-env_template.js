@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   CLIENTID: '111111',
   USER: '2222222',
   PASSWORD: 'yourPassword',
@@ -22,4 +20,4 @@ module.exports = {
     'toTime',
     'breakTime',
   ],
-};
+}

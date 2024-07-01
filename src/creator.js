@@ -1,6 +1,6 @@
-const dayjs = require('dayjs')
-const fs = require('fs')
-const localEnv = require('../config/local-env.js')
+import dayjs from 'dayjs'
+import fs from 'fs'
+import localEnv from '../config/local-env.js'
 
 const year = 2023
 const month = 11
@@ -119,7 +119,7 @@ class Creator {
     this.#lastDate = days.reverse()[0]?.date || null
 
     if (this.#firstDate == null || this.#lastDate == null) {
-      console.log(`First or last date not set.`)
+      console.log('First or last date not set.')
       return
     }
 
@@ -168,7 +168,7 @@ class Creator {
   }
 
   #prepare () {
-    if (!fs.existsSync(this.#destDir)){
+    if (!fs.existsSync(this.#destDir)) {
       fs.mkdirSync(this.#destDir, { recursive: true })
     }
   }
@@ -288,6 +288,5 @@ class Creator {
   }
 }
 
-new Creator()
-
-module.exports = Creator
+export const creator = new Creator()
+export default Creator

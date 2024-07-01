@@ -9,9 +9,9 @@
 'use strict'
 
 /* eslint-disable no-unused-vars */
-const RuntimeException = require('./RuntimeException')
+import RuntimeException from './RuntimeException'
 /* eslint-enable no-unused-vars */
-const config = require('../config/local-env')
+import config from '../config/local-env'
 
 /**
  * Use Tyme JSON and convert it to a collmex object.
@@ -69,7 +69,7 @@ class TymeToCollmex {
           projectId: this.getCollmexIdInMarker(entry.project, entry),
           rateId: this.getCollmexIdInMarker(entry.task, entry),
           description,
-        },
+        }
       )
 
       collmexTimeEntries = collmexTimeEntries.concat(
@@ -220,4 +220,4 @@ class TymeToCollmex {
   }
 }
 
-module.exports = TymeToCollmex
+export default TymeToCollmex

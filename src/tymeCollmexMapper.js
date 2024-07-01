@@ -1,4 +1,4 @@
-const config = require('../config/local-env')
+import config from '../config/local-env'
 
 /* eslint-disable no-unused-vars */
 const getCollmexIdInMarker = (text, entry) => {
@@ -18,7 +18,7 @@ const getCollmexIdInMarker = (text, entry) => {
 }
 /* eslint-enable no-unused-vars */
 
-module.exports = {
+export default {
   tyme2: {
     record: (config, staticRecord, collmexDate, startingTime, endingTime) => {
       return {

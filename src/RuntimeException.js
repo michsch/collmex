@@ -6,8 +6,6 @@
  * @license MIT, Copyright 2016 Michael Schulze
  */
 
-'use strict'
-
 class RuntimeException {
   constructor (message, obj) {
     Error.captureStackTrace(this, this.constructor)
@@ -19,4 +17,4 @@ class RuntimeException {
   }
 }
 
-module.exports = RuntimeException
+export default RuntimeException
