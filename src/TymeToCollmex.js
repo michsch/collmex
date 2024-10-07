@@ -9,9 +9,9 @@
 'use strict'
 
 /* eslint-disable no-unused-vars */
-import RuntimeException from './RuntimeException'
+import RuntimeException from './RuntimeException.js'
 /* eslint-enable no-unused-vars */
-import config from '../config/local-env'
+import config from '../config/local-env.js'
 
 /**
  * Use Tyme JSON and convert it to a collmex object.
@@ -33,6 +33,8 @@ class TymeToCollmex {
   constructor (sourceJson, schema, tymeVersion = 3) {
     this.#schema = schema
     this.#tymeVersion = tymeVersion
+
+    console.log(sourceJson[1])
 
     if (!this.isValidSourceJson(sourceJson)) {
       return
@@ -215,6 +217,8 @@ class TymeToCollmex {
       sourceJson.timed.length > 0 &&
       (sourceJson.timed[0].project && sourceJson.timed[0].project.length) &&
       (sourceJson.timed[0].task && sourceJson.timed[0].task.length > 0)
+
+    console.log(hasData, hasTimed, hasData || hasTimed)
 
     return hasData || hasTimed
   }

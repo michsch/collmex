@@ -1,4 +1,4 @@
-import config from '../config/local-env'
+import config from '../config/local-env.js'
 
 /* eslint-disable no-unused-vars */
 const getCollmexIdInMarker = (text, entry) => {

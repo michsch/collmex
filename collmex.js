@@ -6,15 +6,13 @@
  * @license MIT, Copyright 2016 Michael Schulze
  */
 
-'use strict';
-
-var https = require('https');
-var fs = require('fs');
-var tv4 = require('tv4');
-var csvSchema = require('./schema/collmex.json');
-var config = require('./config/local-env');
-var iconv = require('iconv-lite');
-const TymeToCollmex = require('./src/TymeToCollmex');
+import https from 'https'
+import fs from 'fs'
+import tv4 from 'tv4'
+import csvSchema from './schema/collmex.json' assert { type: 'json' }
+import config from './config/local-env.js'
+import iconv from 'iconv-lite'
+import TymeToCollmex from './src/TymeToCollmex.js'
 
 const COLLMEXHOST = 'www.collmex.de';
 const COLLMEXPATH = '/cgi-bin/cgi.exe?' + config.CLIENT_ID + ',0,data_exchange';
@@ -78,23 +76,25 @@ class Collmex {
    * @method chooseAction
    * @return {void}
    */
-  chooseAction () {
+  async chooseAction () {
     let tymeJson, timeEntries
 
     switch (this.action) {
       case 'tyme2':
-        tymeJson = require(this.getPathToSourceJson(this.sourceFileName));
-        timeEntries = new TymeToCollmex(tymeJson, csvSchema.CMXACT, 2);
+        tymeJson = await import(this.getPathToSourceJson(this.sourceFileName), { with: { type: 'json'} })
+        timeEntries = new TymeToCollmex(tymeJson.default, csvSchema.CMXACT, 2);
 
         this.addDataSet(timeEntries);
         break;
       case 'tyme3':
-        tymeJson = require(this.getPathToSourceJson(this.sourceFileName));
-        timeEntries = new TymeToCollmex(tymeJson, csvSchema.CMXACT, 3);
+        tymeJson = await import(this.getPathToSourceJson(this.sourceFileName), { with: { type: 'json'} })
+        timeEntries = new TymeToCollmex(tymeJson.default, csvSchema.CMXACT, 3);
 
         this.addDataSet(timeEntries);
         break;
     }
+
+    console.log(timeEntries);
 
     this.csv = this.createCsvExport();
     this.writeCsvFile();
@@ -339,4 +339,4 @@ class Collmex {
   }
 }
 
-module.exports = new Collmex();
+export default new Collmex();
